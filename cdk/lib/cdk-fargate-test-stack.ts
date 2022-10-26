@@ -81,7 +81,7 @@ export class CdkFargateTestStack extends Stack {
 	public createHelloWorldGithubSourceAction(sourceOutput: Artifact, oauthToken: SecretValue): GitHubSourceAction {
 		return new GitHubSourceAction({
 			actionName: 'my_github_source',
-			owner: 'ivdmeer',
+			owner: 'randyridgley',
 			repo: repoName,
 			oauthToken: oauthToken,
 			output: sourceOutput,
