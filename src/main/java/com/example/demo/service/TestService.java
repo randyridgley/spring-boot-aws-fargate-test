@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.dao.TestMapper;
 import com.example.demo.service.clients.TestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,9 +23,6 @@ public class TestService {
 	@Autowired
 	private TestClient testClient;
 	
-	@Autowired
-	private TestMapper testMapper;
-	
 	public void test(String bucket) {
 		S3Client s3Client = S3Client.builder()
 									.credentialsProvider(ProfileCredentialsProvider.create("default"))
@@ -36,9 +32,7 @@ public class TestService {
 											.build())
 								.build();		
 		s3Client.listBuckets();		
-		testClient.getNaver();		
-		testMapper.count(1);
+		testClient.getNaver();
 		log.debug("Serviced");
 	}
-	
 }
