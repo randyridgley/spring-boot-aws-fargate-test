@@ -11,11 +11,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @EnableFeignClients(basePackages = {"com.example.demo.service.clients"})
 @MapperScan(basePackages = "com.example.demo.dao")
 public class SpringBootXRayApplication {
-
 	public static void main(String[] args) {
-		
 		SpringApplication.run(SpringBootXRayApplication.class, args);
-		
 	}
-
 }
