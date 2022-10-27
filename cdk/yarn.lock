@@ -9,6 +9,26 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
+"@aws-cdk/aws-apigatewayv2-alpha@^2.18.0-alpha.0":
+  "integrity" "sha512-vmcO8TJB4Li6IQ8kqu2Y+UUMqmKOtiJ0ZLwew4TXN6hN/EG4zBRC9flddcYPQzI1KTwf784G9l3jwfXdQKm1PA=="
+  "resolved" "https://registry.npmjs.org/@aws-cdk/aws-apigatewayv2-alpha/-/aws-apigatewayv2-alpha-2.18.0-alpha.0.tgz"
+  "version" "2.18.0-alpha.0"
+
+"@aws-cdk/aws-appsync-alpha@^2.18.0-alpha.0":
+  "integrity" "sha512-vVbFb4uNeVzLdjTmp/r0FGb+U/v9595Coh8A0q5Q0P9X6bR+QpsMpqJx5ZCcBH04h5043PGjiGmCw9p42yaLRg=="
+  "resolved" "https://registry.npmjs.org/@aws-cdk/aws-appsync-alpha/-/aws-appsync-alpha-2.18.0-alpha.0.tgz"
+  "version" "2.18.0-alpha.0"
+
+"@aws-cdk/aws-redshift-alpha@^2.18.0-alpha.0":
+  "integrity" "sha512-QxpmvWE9fvXf3tLNNzfiFoYKFXc2nd535t3QsqVYUzAmmAn1wv0/4wNescnlcdBLO2ACbpgBjpYFuVlYBSNGzA=="
+  "resolved" "https://registry.npmjs.org/@aws-cdk/aws-redshift-alpha/-/aws-redshift-alpha-2.18.0-alpha.0.tgz"
+  "version" "2.18.0-alpha.0"
+
+"@aws-cdk/aws-synthetics-alpha@^2.18.0-alpha.0":
+  "integrity" "sha512-84WPwuO+gEfRY+EcTLrCSnUao2RCA7ad7nevLTaO1MSGI2Qqg66ryvPxwLVZbAAyJvZbgF4V8UeJzEwQVFSjxA=="
+  "resolved" "https://registry.npmjs.org/@aws-cdk/aws-synthetics-alpha/-/aws-synthetics-alpha-2.18.0-alpha.0.tgz"
+  "version" "2.18.0-alpha.0"
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.16.7":
   "integrity" "sha512-iAXqUn8IIeBTNd72xsFlgaXHkMBMt6y4HJp1tIaK465CWLT/fG1aqB7ykr95gHHmlBdGbFeWWfyB4NJJ0nmeIg=="
   "resolved" "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.16.7.tgz"
@@ -751,7 +771,7 @@
   "resolved" "https://registry.npmjs.org/atob/-/atob-2.1.2.tgz"
   "version" "2.1.2"
 
-"aws-cdk-lib@2.19.0":
+"aws-cdk-lib@^2.18.0", "aws-cdk-lib@2.19.0":
   "integrity" "sha512-zt0lAsTpYfrDitjJXp1smEi4o1EYtAAj4fb0WW4GYBW+P6FqymXyAF5mUT8YWPkMJTnSP8d4FeDUyatQVWYRJA=="
   "resolved" "https://registry.npmjs.org/aws-cdk-lib/-/aws-cdk-lib-2.19.0.tgz"
   "version" "2.19.0"
@@ -965,6 +985,11 @@
   "resolved" "https://registry.npmjs.org/case/-/case-1.6.3.tgz"
   "version" "1.6.3"
 
+"cdk-monitoring-constructs@^1.26.0":
+  "integrity" "sha512-SxeIx1h5RpZmE1R7IazZtyQ+m33Rwt/VLLSk1s7lzVlUhRZnWOdOabl8ngXFRCV/7qPCgNxxy9Bsxy1/CKUACw=="
+  "resolved" "https://registry.npmjs.org/cdk-monitoring-constructs/-/cdk-monitoring-constructs-1.26.0.tgz"
+  "version" "1.26.0"
+
 "chalk@^2.0.0":
   "integrity" "sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ=="
   "resolved" "https://registry.npmjs.org/chalk/-/chalk-2.4.2.tgz"
@@ -1075,7 +1100,7 @@
   "resolved" "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz"
   "version" "0.0.1"
 
-"constructs@^10.0.0":
+"constructs@^10.0.0", "constructs@^10.0.5":
   "integrity" "sha512-uLGk7YkuqMrnxC4Um8N6OUusfojeloNaUl6Rf0yukCOjAxxRCz3tvVnlZdyNk6AL9tnaC/C+hQLIY6Hhayxi8A=="
   "resolved" "https://registry.npmjs.org/constructs/-/constructs-10.0.104.tgz"
   "version" "10.0.104"

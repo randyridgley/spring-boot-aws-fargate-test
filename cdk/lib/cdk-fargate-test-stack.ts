@@ -19,6 +19,7 @@ import {
 	GitHubSourceAction
 } from 'aws-cdk-lib/aws-codepipeline-actions';
 import {LocalCacheMode} from 'aws-cdk-lib/aws-codebuild';
+import { DashboardRenderingPreference, DefaultDashboardFactory, FargateServiceMonitoring, MonitoringFacade } from 'cdk-monitoring-constructs';
 
 const repoName = 'spring-boot-aws-fargate-test';
 
@@ -51,7 +52,43 @@ export class CdkFargateTestStack extends Stack {
 		const githubSourceAction = this.createHelloWorldGithubSourceAction(sourceOutput, oauthToken);
 		const buildAction = this.createHelloWorldBuildAction(pipelineProject, sourceOutput, buildOutput);
 
-		const ecsDeployAction = this.createEcsDeployAction(vpc, ecrRepository, buildOutput);
+		const fargateService = this.createLoadBalancedFargateService(this, vpc)
+		const ecsDeployAction = this.createEcsDeployAction(vpc, fargateService.service, buildOutput);
+
+		const dashboardFactory = new DefaultDashboardFactory(this, 'DefaultDashboardFactory', {
+			dashboardNamePrefix: 'Fargate-Monitoring',
+			createDashboard: true,
+			createAlarmDashboard: true,
+			createSummaryDashboard: true,
+			renderingPreference: DashboardRenderingPreference.INTERACTIVE_ONLY,			
+		});
+	
+		const monitoring = new MonitoringFacade(this, 'MonitoringFacade', {
+			alarmFactoryDefaults: {
+				alarmNamePrefix: 'fargate_',
+				actionsEnabled: true,
+				datapointsToAlarm: 3,
+			},
+			metricFactoryDefaults: {
+				namespace: 'fargate',
+			},
+			dashboardFactory,			
+		});
+		
+		monitoring
+			.addMediumHeader('Fargate Monitor')
+			.monitorFargateService({
+				fargateService: fargateService,
+				addUnhealthyTaskCountAlarm: {
+
+				}
+			});  
+		// new FargateServiceMonitoring(monitoring, {
+		// 	fargateService: fargateService.service,
+		// 	loadBalancer: fargateService.loadBalancer,
+		// 	targetGroup: fargateService.targetGroup,
+		// 	alarmFriendlyName: "FargateService",
+		// });
 
 		new codepipeline.Pipeline(this, 'my_pipeline_', {
 			stages: [
@@ -85,7 +122,7 @@ export class CdkFargateTestStack extends Stack {
 			repo: repoName,
 			oauthToken: oauthToken,
 			output: sourceOutput,
-			branch: 'main', // default: 'master'
+			branch: 'main',
 		});
 	}
 
@@ -106,18 +143,24 @@ export class CdkFargateTestStack extends Stack {
 		});
 	}
 
-	public createEcsDeployAction(vpc: Vpc, ecrRepo: ecr.Repository, buildOutput: Artifact): EcsDeployAction {
+	public createEcsDeployAction(vpc: Vpc, service: ecs.IBaseService, buildOutput: Artifact): EcsDeployAction {
 		return new EcsDeployAction({
 			actionName: 'EcsDeployAction',
-			service: this.createLoadBalancedFargateService(this, vpc).service,
-			input: buildOutput,
+			service: service,
+			input: buildOutput,			
 		})
 	};
 
 	protected createLoadBalancedFargateService(scope: Construct, vpc: Vpc) {
-
-		const fargateService = new ecspatterns.ApplicationLoadBalancedFargateService(scope, 'myLbFargateService', {
+		const cluster = new ecs.Cluster(this, 'Cluster', {
 			vpc: vpc,
+			clusterName: `fargate-spring-boot-cluster`,
+			containerInsights: true,
+			enableFargateCapacityProviders: true,
+		});
+	  
+		const fargateService = new ecspatterns.ApplicationLoadBalancedFargateService(scope, 'myLbFargateService', {
+			cluster: cluster,
 			memoryLimitMiB: 512,
 			cpu: 256,
 			assignPublicIp: true,
@@ -125,10 +168,13 @@ export class CdkFargateTestStack extends Stack {
 			taskImageOptions: {
 				containerName: repoName,
 				image: ecs.ContainerImage.fromRegistry('okaycloud/dummywebserver:latest'),
-				containerPort: 8080,
-			},
+				containerPort: 8080,				
+			},			
 		});
 		fargateService.taskDefinition.executionRole?.addManagedPolicy((ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryPowerUser')));
+		// fargateService.targetGroup.configureHealthCheck({
+		// 	path: "/custom-health-path",
+		// });
 		return fargateService;
 	}
 
