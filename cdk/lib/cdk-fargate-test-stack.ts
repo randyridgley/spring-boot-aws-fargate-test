@@ -3,7 +3,7 @@ import {
 	aws_codepipeline as codepipeline,
 	aws_ecr as ecr,
 	aws_ecs as ecs,
-	aws_ecs_patterns as ecspatterns,
+	aws_ecs_patterns as ecspatterns, Duration,
 	SecretValue,
 	Stack,
 	StackProps
@@ -20,6 +20,7 @@ import {
 } from 'aws-cdk-lib/aws-codepipeline-actions';
 import {LocalCacheMode} from 'aws-cdk-lib/aws-codebuild';
 import { DashboardRenderingPreference, DefaultDashboardFactory, FargateServiceMonitoring, MonitoringFacade } from 'cdk-monitoring-constructs';
+import {RetentionDays} from "aws-cdk-lib/aws-logs";
 
 const repoName = 'spring-boot-aws-fargate-test';
 
@@ -82,13 +83,7 @@ export class CdkFargateTestStack extends Stack {
 				addUnhealthyTaskCountAlarm: {
 
 				}
-			});  
-		// new FargateServiceMonitoring(monitoring, {
-		// 	fargateService: fargateService.service,
-		// 	loadBalancer: fargateService.loadBalancer,
-		// 	targetGroup: fargateService.targetGroup,
-		// 	alarmFriendlyName: "FargateService",
-		// });
+			});
 
 		new codepipeline.Pipeline(this, 'my_pipeline_', {
 			stages: [
@@ -164,17 +159,46 @@ export class CdkFargateTestStack extends Stack {
 			memoryLimitMiB: 512,
 			cpu: 256,
 			assignPublicIp: true,
-			// listenerPort: 8080,
+			platformVersion: ecs.FargatePlatformVersion.LATEST,
 			taskImageOptions: {
 				containerName: repoName,
 				image: ecs.ContainerImage.fromRegistry('okaycloud/dummywebserver:latest'),
-				containerPort: 8080,				
-			},			
+				containerPort: 8080,
+				logDriver: ecs.LogDrivers.awsLogs({
+					streamPrefix: 'fargate/spring-boot/',
+					logRetention: RetentionDays.ONE_YEAR,
+				}),
+			},
+			healthCheckGracePeriod: Duration.seconds(300),
+			circuitBreaker: {
+				rollback: true
+			},
 		});
 		fargateService.taskDefinition.executionRole?.addManagedPolicy((ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryPowerUser')));
-		// fargateService.targetGroup.configureHealthCheck({
-		// 	path: "/custom-health-path",
-		// });
+		fargateService.targetGroup.healthCheck = {
+			path: "/api/index",
+			healthyHttpCodes: "200",
+			unhealthyThresholdCount: 5,
+			timeout: Duration.seconds(15),
+			interval: Duration.seconds(120),
+		};
+
+		const scalableTarget = fargateService.service.autoScaleTaskCount({
+			minCapacity: 1,
+			maxCapacity: 20,
+		});
+
+		scalableTarget.scaleOnCpuUtilization('CpuScaling', {
+			targetUtilizationPercent: 50,
+			scaleInCooldown: Duration.seconds(60),
+			scaleOutCooldown: Duration.seconds(60),
+		});
+
+		scalableTarget.scaleOnMemoryUtilization('MemoryScaling', {
+			targetUtilizationPercent: 50,
+			scaleInCooldown: Duration.seconds(60),
+			scaleOutCooldown: Duration.seconds(60),
+		});
 		return fargateService;
 	}
 
